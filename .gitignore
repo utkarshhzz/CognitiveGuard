@@ -1,0 +1,61 @@
+# ── Node / Frontend ────────────────────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
+
+# ── Python ─────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+*.egg
+.venv/
+venv/
+env/
+.env
+pip-wheel-metadata/
+
+# ── Java / Spring Boot ──────────────────────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+.mvn/wrapper/maven-wrapper.jar
+!.mvn/wrapper/maven-wrapper.properties
+
+# ── Environment & Secrets ───────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+
+# ── Database / Vector Store ─────────────────────────────────────────────────────
+*.sqlite
+*.db
+chroma_data/
+pg_data/
+
+# ── IDE / OS ────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ────────────────────────────────────────────────────────────────────────
+*.log
+logs/
+npm-debug.log*
+
+# ── Docker volumes ───────────────────────────────────────────────────────────────
+zk_data/

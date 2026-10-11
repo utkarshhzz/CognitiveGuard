@@ -1,0 +1,47 @@
+spring:
+  application:
+    name: cognitiveguard-gateway
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/cognitiveguard}
+    username: ${SPRING_DATASOURCE_USERNAME:cgadmin}
+    password: ${SPRING_DATASOURCE_PASSWORD:cgpassword123}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  websocket:
+    enabled: true
+
+server:
+  port: 8080
+  error:
+    include-message: always
+
+jwt:
+  secret: ${JWT_SECRET:cognitiveguardjwtsecret2024}
+  expiration-ms: 300000   # 5 minutes (JIT)
+
+gateway:
+  unlearning-url: ${UNLEARNING_ENGINE_URL:http://localhost:8001}
+  ctem-host:      ${CTEM_PIPELINE_HOST:localhost}
+  ctem-port:      ${CTEM_PIPELINE_PORT:8002}
+  jit-ttl-seconds: 300
+  max-requests-per-minute: 10   # triggers escalation alert
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.cognitiveguard: DEBUG
+    org.springframework.security: INFO

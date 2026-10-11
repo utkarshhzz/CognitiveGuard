@@ -1,0 +1,147 @@
+version: '3.9'
+
+services:
+  # ── Infrastructure ─────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: cg-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cognitiveguard
+      POSTGRES_USER: cgadmin
+      POSTGRES_PASSWORD: cgpassword123
+    volumes:
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - pg_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cgadmin -d cognitiveguard"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: cg-chromadb
+    restart: unless-stopped
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    environment:
+      CHROMA_SERVER_AUTHN_CREDENTIALS: cgchromakey
+      CHROMA_SERVER_AUTHN_PROVIDER: chromadb.auth.token_authn.TokenAuthenticationServerProvider
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/heartbeat"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.0
+    container_name: cg-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zk_data:/var/lib/zookeeper
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.0
+    container_name: cg-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+
+  # ── Microservices ───────────────────────────────────────────────────────────
+  unlearning-engine:
+    build:
+      context: ../services/unlearning-engine
+      dockerfile: Dockerfile
+    container_name: cg-unlearning
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      chromadb:
+        condition: service_healthy
+    environment:
+      CHROMA_HOST: chromadb
+      CHROMA_PORT: 8000
+      CHROMA_AUTH_TOKEN: cgchromakey
+      DATABASE_URL: postgresql://cgadmin:cgpassword123@postgres:5432/cognitiveguard
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      NUM_SHARDS: 8
+      HMAC_SECRET: ${HMAC_SECRET:-supersecrethmackey}
+    ports:
+      - "8001:8001"
+
+  zero-trust-gateway:
+    build:
+      context: ../services/zero-trust-gateway
+      dockerfile: Dockerfile
+    container_name: cg-gateway
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/cognitiveguard
+      SPRING_DATASOURCE_USERNAME: cgadmin
+      SPRING_DATASOURCE_PASSWORD: cgpassword123
+      JWT_SECRET: ${JWT_SECRET:-cognitiveguardjwtsecret2024}
+      UNLEARNING_ENGINE_URL: http://unlearning-engine:8001
+      CTEM_PIPELINE_HOST: ctem-pipeline
+      CTEM_PIPELINE_PORT: 50051
+    ports:
+      - "8080:8080"
+
+  ctem-pipeline:
+    build:
+      context: ../services/ctem-pipeline
+      dockerfile: Dockerfile
+    container_name: cg-ctem
+    restart: unless-stopped
+    depends_on:
+      - kafka
+      - postgres
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      DATABASE_URL: postgresql://cgadmin:cgpassword123@postgres:5432/cognitiveguard
+      GRPC_PORT: 50051
+    ports:
+      - "50051:50051"
+      - "8002:8002"  # REST fallback
+
+  dashboard:
+    build:
+      context: ../services/dashboard
+      dockerfile: Dockerfile
+    container_name: cg-dashboard
+    restart: unless-stopped
+    depends_on:
+      - zero-trust-gateway
+      - unlearning-engine
+      - ctem-pipeline
+    environment:
+      VITE_GATEWAY_URL: http://localhost:8080
+      VITE_UNLEARNING_URL: http://localhost:8001
+      VITE_CTEM_URL: http://localhost:8002
+    ports:
+      - "3000:80"
+
+volumes:
+  pg_data:
+  chroma_data:
+  zk_data:
