@@ -1,12 +1,12 @@
-# 🛡️ CognitiveGuard AI
+# CognitiveGuard AI
 ### DPDP-Compliant Continuous Threat Exposure Management Platform for Agentic AI
 
-> **International Hackathon Submission** — Round 1  
+
 > CTEM + Machine Unlearning + Zero-Trust Access Gateway + Live DPDP Compliance Dashboard
 
 ---
 
-## 🚀 Quick Start (Dashboard Only — No Backend Needed)
+##  Quick Start (Dashboard Only — No Backend Needed)
 
 ```bash
 cd services/dashboard
@@ -15,7 +15,7 @@ npm run dev
 # → Opens at http://localhost:5173
 ```
 
-## 🐳 Full Stack (Docker Compose)
+##  Full Stack (Docker Compose)
 
 ```bash
 # Copy environment file
@@ -43,7 +43,7 @@ python attack_simulator.py
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -52,14 +52,14 @@ python attack_simulator.py
                         │ All requests intercepted
                         ▼
 ┌─────────────────────────────────────────────────────┐
-│     ⚙️ Zero-Trust Gateway (Spring Boot :8080)        │
+│      Zero-Trust Gateway (Spring Boot :8080)         │
 │  • JIT Access Control (MCP)   • OPA Policy Engine   │
-│  • Consent Token Validation   • WebSocket Audit Feed │
+│  • Consent Token Validation   • WebSocket Audit Feed│
 └──────┬──────────────────────────────────────────────┘
        │                    │
        ▼                    ▼
 ┌─────────────┐    ┌────────────────────────────────┐
-│  🧠 Machine │    │  📡 CTEM Pipeline (Python :8002)│
+│    Machine  │    │   CTEM Pipeline (Python :8002) │
 │  Unlearning │    │  • PII Detection (Presidio)    │
 │  Engine     │    │  • Prompt Injection Blocking   │
 │  (FastAPI)  │    │  • Shadow AI Detection         │
@@ -75,7 +75,7 @@ python attack_simulator.py
                         │
                         ▼
 ┌─────────────────────────────────────────────────────┐
-│     🖥️ CISO/DPO Dashboard (React + D3.js :3000)     │
+│      CISO/DPO Dashboard (React + D3.js :3000)       │
 │  • Real-time Threat Map        • SISA Unlearning UI  │
 │  • Vulnerability Burndown      • DPIA PDF Export     │
 │  • Agent Registry + JIT        • Consent Manager     │
@@ -85,7 +85,7 @@ python attack_simulator.py
 
 ---
 
-## 📦 Deliverables
+##  Deliverables
 
 ### Deliverable 1: Machine Unlearning Engine (`services/unlearning-engine/`)
 - **SISA Unlearning**: Sharded, Isolated, Sliced, and Aggregated technique
@@ -131,7 +131,7 @@ GET  /stats               → Aggregate vector store statistics
 
 ---
 
-## 🔑 Extra Features (Beyond Scope)
+##  Extra Features (Beyond Scope)
 
 | Feature | Description |
 |---------|-------------|
@@ -146,7 +146,7 @@ GET  /stats               → Aggregate vector store statistics
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Component | Technology |
 |-----------|-----------|
@@ -162,7 +162,7 @@ GET  /stats               → Aggregate vector store statistics
 
 ---
 
-## 📋 DPDP Act Compliance Coverage
+##  DPDP Act Compliance Coverage
 
 | Section | Topic | Coverage |
 |---------|-------|----------|
@@ -177,7 +177,7 @@ GET  /stats               → Aggregate vector store statistics
 
 ---
 
-## 🎬 Demo Script (5 Minutes)
+##  Demo Script (5 Minutes)
 
 1. **[0:00–0:45]** Open dashboard → Show live risk gauge (67/100), burndown chart, alert feed
 2. **[0:45–1:30]** Run `demo/attack_simulator.py` → Watch CRITICAL alerts fire in real-time
@@ -189,7 +189,7 @@ GET  /stats               → Aggregate vector store statistics
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 cognitiveguard/
@@ -227,4 +227,4 @@ cognitiveguard/
 
 ---
 
-*Made for the International Hackathon · CognitiveGuard AI · DPDP Act 2023 Compliance*
+
